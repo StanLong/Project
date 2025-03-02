@@ -14,7 +14,7 @@
  Date: 17/05/2023 14:27:23
 */
 
-SET NAMES utf8mb4;
+SET NAMES utf8;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
@@ -23,15 +23,15 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `activity_info`;
 CREATE TABLE `activity_info`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '活动id',
-  `activity_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '活动名称',
-  `activity_type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '活动类型（1：满减，2：折扣）',
-  `activity_desc` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '活动描述',
+  `activity_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '活动名称',
+  `activity_type` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '活动类型（1：满减，2：折扣）',
+  `activity_desc` varchar(2000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '活动描述',
   `start_time` datetime NULL DEFAULT NULL COMMENT '开始时间',
   `end_time` datetime NULL DEFAULT NULL COMMENT '结束时间',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '活动表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '活动表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of activity_info
@@ -48,7 +48,7 @@ DROP TABLE IF EXISTS `activity_rule`;
 CREATE TABLE `activity_rule`  (
   `id` int NOT NULL AUTO_INCREMENT COMMENT '编号',
   `activity_id` int NULL DEFAULT NULL COMMENT '活动id',
-  `activity_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '活动类型',
+  `activity_type` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '活动类型',
   `condition_amount` decimal(16, 2) NULL DEFAULT NULL COMMENT '满减金额',
   `condition_num` bigint NULL DEFAULT NULL COMMENT '满减件数',
   `benefit_amount` decimal(16, 2) NULL DEFAULT NULL COMMENT '优惠金额',
@@ -57,7 +57,7 @@ CREATE TABLE `activity_rule`  (
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '活动规则表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '活动规则表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of activity_rule
@@ -79,7 +79,7 @@ CREATE TABLE `activity_sku`  (
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '活动商品关联表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '活动商品关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of activity_sku
@@ -104,13 +104,13 @@ INSERT INTO `activity_sku` VALUES (13, 4, 19, '2021-12-14 00:00:00', NULL);
 DROP TABLE IF EXISTS `base_attr_info`;
 CREATE TABLE `base_attr_info`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
-  `attr_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '属性名称',
+  `attr_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '属性名称',
   `category_id` bigint NULL DEFAULT NULL COMMENT '分类id',
   `category_level` int NULL DEFAULT NULL COMMENT '分类层级',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '属性表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '属性表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of base_attr_info
@@ -163,12 +163,12 @@ INSERT INTO `base_attr_info` VALUES (114, '香调', 473, 3, '2021-12-14 00:00:00
 DROP TABLE IF EXISTS `base_attr_value`;
 CREATE TABLE `base_attr_value`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
-  `value_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '属性值名称',
+  `value_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '属性值名称',
   `attr_id` bigint NULL DEFAULT NULL COMMENT '属性id',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '属性值表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '属性值表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of base_attr_value
@@ -309,11 +309,11 @@ INSERT INTO `base_attr_value` VALUES (218, '花香调', 114, '2021-12-14 00:00:0
 DROP TABLE IF EXISTS `base_category1`;
 CREATE TABLE `base_category1`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '一级品类id',
-  `name` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '一级品类名称',
+  `name` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '一级品类名称',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '一级品类表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '一级品类表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of base_category1
@@ -342,12 +342,12 @@ INSERT INTO `base_category1` VALUES (17, '运动健康', '2021-12-14 00:00:00', 
 DROP TABLE IF EXISTS `base_category2`;
 CREATE TABLE `base_category2`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '二级品类id',
-  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '二级品类名称',
+  `name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '二级品类名称',
   `category1_id` bigint NULL DEFAULT NULL COMMENT '一级品类编号',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '二级品类表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '二级品类表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of base_category2
@@ -472,12 +472,12 @@ INSERT INTO `base_category2` VALUES (113, '体育用品', 17, '2021-12-14 00:00:
 DROP TABLE IF EXISTS `base_category3`;
 CREATE TABLE `base_category3`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '三级品类id',
-  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '三级品类名称',
+  `name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '三级品类名称',
   `category2_id` bigint NULL DEFAULT NULL COMMENT '二级品类编号',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '三级品类表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '三级品类表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of base_category3
@@ -1587,13 +1587,13 @@ INSERT INTO `base_category3` VALUES (1099, '其他', 113, '2021-12-14 00:00:00',
 -- ----------------------------
 DROP TABLE IF EXISTS `base_dic`;
 CREATE TABLE `base_dic`  (
-  `dic_code` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '编号',
-  `dic_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '编码名称',
-  `parent_code` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '父编号',
+  `dic_code` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '编号',
+  `dic_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '编码名称',
+  `parent_code` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '父编号',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建日期',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改日期',
   PRIMARY KEY (`dic_code`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of base_dic
@@ -1675,12 +1675,12 @@ INSERT INTO `base_dic` VALUES ('4204', '瀑布', '42', '2021-12-14 00:00:00', NU
 DROP TABLE IF EXISTS `base_frontend_param`;
 CREATE TABLE `base_frontend_param`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
-  `code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '属性名称',
+  `code` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '属性名称',
   `delete_id` bigint NULL DEFAULT NULL COMMENT '分类id',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '前端数据保护表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '前端数据保护表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of base_frontend_param
@@ -1692,15 +1692,15 @@ CREATE TABLE `base_frontend_param`  (
 DROP TABLE IF EXISTS `base_province`;
 CREATE TABLE `base_province`  (
   `id` bigint NOT NULL COMMENT 'id',
-  `name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '省份名称',
-  `region_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '地区id',
-  `area_code` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '地区编码',
-  `iso_code` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '旧版国际标准地区编码，供可视化使用',
-  `iso_3166_2` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '新版国际标准地区编码，供可视化使用',
+  `name` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '省份名称',
+  `region_id` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '地区id',
+  `area_code` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '地区编码',
+  `iso_code` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '旧版国际标准地区编码，供可视化使用',
+  `iso_3166_2` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '新版国际标准地区编码，供可视化使用',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '省份表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '省份表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of base_province
@@ -1745,11 +1745,11 @@ INSERT INTO `base_province` VALUES (34, '西藏', '6', '540000', 'CN-54', 'CN-XZ
 -- ----------------------------
 DROP TABLE IF EXISTS `base_region`;
 CREATE TABLE `base_region`  (
-  `id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '地区id',
-  `region_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '地区名称',
+  `id` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '地区id',
+  `region_name` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '地区名称',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '地区表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '地区表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of base_region
@@ -1768,11 +1768,11 @@ INSERT INTO `base_region` VALUES ('7', '西北', '2020-05-01 11:20:40', NULL);
 DROP TABLE IF EXISTS `base_sale_attr`;
 CREATE TABLE `base_sale_attr`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
-  `name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '销售属性名称',
+  `name` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '销售属性名称',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '基本销售属性表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '基本销售属性表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of base_sale_attr
@@ -1789,12 +1789,12 @@ INSERT INTO `base_sale_attr` VALUES (5, '处理器或显卡', NULL, NULL);
 DROP TABLE IF EXISTS `base_trademark`;
 CREATE TABLE `base_trademark`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
-  `tm_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '品牌名称',
-  `logo_url` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '品牌logo的图片路径',
+  `tm_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '品牌名称',
+  `logo_url` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '品牌logo的图片路径',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '品牌表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '品牌表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of base_trademark
@@ -1817,12 +1817,12 @@ INSERT INTO `base_trademark` VALUES (11, '香奈儿', '/static/default.jpg', '20
 DROP TABLE IF EXISTS `cart_info`;
 CREATE TABLE `cart_info`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
-  `user_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户id',
+  `user_id` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户id',
   `sku_id` bigint NULL DEFAULT NULL COMMENT 'skuid',
   `cart_price` decimal(10, 2) NULL DEFAULT NULL COMMENT '放入购物车时价格',
   `sku_num` int NULL DEFAULT NULL COMMENT '数量',
-  `img_url` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '商品图片地址',
-  `sku_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'sku名称 (冗余)',
+  `img_url` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商品图片地址',
+  `sku_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'sku名称 (冗余)',
   `is_checked` int NULL DEFAULT NULL COMMENT '是否被选中',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
@@ -1830,7 +1830,7 @@ CREATE TABLE `cart_info`  (
   `order_time` datetime NULL DEFAULT NULL COMMENT '下单时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_uid`(`user_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '购物车表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '购物车表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of cart_info
@@ -1842,14 +1842,14 @@ CREATE TABLE `cart_info`  (
 DROP TABLE IF EXISTS `cms_banner`;
 CREATE TABLE `cms_banner`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `title` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '标题',
-  `image_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '图片地址',
-  `link_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '链接地址',
+  `title` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '标题',
+  `image_url` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '图片地址',
+  `link_url` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '链接地址',
   `sort` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '排序',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '首页banner表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '首页banner表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of cms_banner
@@ -1862,17 +1862,17 @@ DROP TABLE IF EXISTS `comment_info`;
 CREATE TABLE `comment_info`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
   `user_id` bigint NULL DEFAULT NULL COMMENT '用户id',
-  `nick_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户昵称',
-  `head_img` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `nick_name` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户昵称',
+  `head_img` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   `sku_id` bigint NULL DEFAULT NULL COMMENT 'skuid',
   `spu_id` bigint NULL DEFAULT NULL COMMENT 'spuid',
   `order_id` bigint NULL DEFAULT NULL COMMENT '订单编号',
-  `appraise` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '评价 1 好评 2 中评 3 差评',
-  `comment_txt` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '评价内容',
+  `appraise` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '评价 1 好评 2 中评 3 差评',
+  `comment_txt` varchar(2000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '评价内容',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '商品评论表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商品评论表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of comment_info
@@ -1884,24 +1884,24 @@ CREATE TABLE `comment_info`  (
 DROP TABLE IF EXISTS `coupon_info`;
 CREATE TABLE `coupon_info`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '购物券编号',
-  `coupon_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '购物券名称',
-  `coupon_type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '购物券类型 1 现金券 2 折扣券 3 满减券 4 满件打折券',
+  `coupon_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '购物券名称',
+  `coupon_type` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '购物券类型 1 现金券 2 折扣券 3 满减券 4 满件打折券',
   `condition_amount` decimal(10, 2) NULL DEFAULT NULL COMMENT '满额数',
   `condition_num` bigint NULL DEFAULT NULL COMMENT '满件数',
   `activity_id` bigint NULL DEFAULT NULL COMMENT '活动编号',
   `benefit_amount` decimal(16, 2) NULL DEFAULT NULL COMMENT '减免金额',
   `benefit_discount` decimal(10, 2) NULL DEFAULT NULL COMMENT '折扣',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-  `range_type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '范围类型 1、商品(spuid) 2、品类(三级分类id) 3、品牌',
+  `range_type` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '范围类型 1、商品(spuid) 2、品类(三级分类id) 3、品牌',
   `limit_num` int NOT NULL DEFAULT 0 COMMENT '最多领用次数',
   `taken_count` int NOT NULL DEFAULT 0 COMMENT '已领用次数',
   `start_time` datetime NULL DEFAULT NULL COMMENT '可以领取的开始时间',
   `end_time` datetime NULL DEFAULT NULL COMMENT '可以领取的结束时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   `expire_time` datetime NULL DEFAULT NULL COMMENT '过期时间',
-  `range_desc` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '范围描述',
+  `range_desc` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '范围描述',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '优惠券信息表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '优惠券信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of coupon_info
@@ -1919,12 +1919,12 @@ DROP TABLE IF EXISTS `coupon_range`;
 CREATE TABLE `coupon_range`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '购物券编号',
   `coupon_id` bigint NOT NULL DEFAULT 0 COMMENT '优惠券id',
-  `range_type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '范围类型 1、商品(spuid) 2、品类(三级分类id) 3、品牌',
+  `range_type` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '范围类型 1、商品(spuid) 2、品类(三级分类id) 3、品牌',
   `range_id` bigint NOT NULL DEFAULT 0,
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '优惠券范围表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '优惠券范围表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of coupon_range
@@ -1944,7 +1944,7 @@ CREATE TABLE `coupon_use`  (
   `coupon_id` bigint NULL DEFAULT NULL COMMENT '购物券ID',
   `user_id` bigint NULL DEFAULT NULL COMMENT '用户ID',
   `order_id` bigint NULL DEFAULT NULL COMMENT '订单ID',
-  `coupon_status` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '购物券状态（1：未使用 2：已使用）',
+  `coupon_status` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '购物券状态（1：未使用 2：已使用）',
   `get_time` datetime NULL DEFAULT NULL COMMENT '获取时间',
   `using_time` datetime NULL DEFAULT NULL COMMENT '使用时间',
   `used_time` datetime NULL DEFAULT NULL COMMENT '支付时间',
@@ -1952,7 +1952,7 @@ CREATE TABLE `coupon_use`  (
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '优惠券领用表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '优惠券领用表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of coupon_use
@@ -1967,11 +1967,11 @@ CREATE TABLE `favor_info`  (
   `user_id` bigint NULL DEFAULT NULL COMMENT '用户id',
   `sku_id` bigint NULL DEFAULT NULL COMMENT 'skuid',
   `spu_id` bigint NULL DEFAULT NULL COMMENT 'spuid',
-  `is_cancel` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '是否已取消 0 正常 1 已取消',
+  `is_cancel` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '是否已取消 0 正常 1 已取消',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '商品收藏表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商品收藏表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of favor_info
@@ -1982,15 +1982,15 @@ CREATE TABLE `favor_info`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `financial_sku_cost`;
 CREATE TABLE `financial_sku_cost`  (
-  `id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `id` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `sku_id` bigint NULL DEFAULT NULL COMMENT 'sku_id',
-  `sku_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'sku名称',
-  `busi_date` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '业务日期',
-  `is_lastest` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '是否最近',
+  `sku_name` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'sku名称',
+  `busi_date` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '业务日期',
+  `is_lastest` varchar(2) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '是否最近',
   `sku_cost` decimal(16, 2) NULL DEFAULT NULL COMMENT '商品结算成本',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of financial_sku_cost
@@ -2004,8 +2004,8 @@ CREATE TABLE `order_detail`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
   `order_id` bigint NULL DEFAULT NULL COMMENT '订单id',
   `sku_id` bigint NULL DEFAULT NULL COMMENT 'sku_id',
-  `sku_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'sku名称（冗余)',
-  `img_url` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '图片链接（冗余)',
+  `sku_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'sku名称（冗余)',
+  `img_url` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '图片链接（冗余)',
   `order_price` decimal(10, 2) NULL DEFAULT NULL COMMENT '购买价格(下单时sku价格）',
   `sku_num` bigint NULL DEFAULT NULL COMMENT '购买个数',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -2014,7 +2014,7 @@ CREATE TABLE `order_detail`  (
   `split_coupon_amount` decimal(16, 2) NULL DEFAULT NULL,
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '订单明细表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单明细表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of order_detail
@@ -2034,7 +2034,7 @@ CREATE TABLE `order_detail_activity`  (
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '订单明细活动关联表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单明细活动关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of order_detail_activity
@@ -2054,7 +2054,7 @@ CREATE TABLE `order_detail_coupon`  (
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '订单明细优惠券关联表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单明细优惠券关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of order_detail_coupon
@@ -2066,23 +2066,23 @@ CREATE TABLE `order_detail_coupon`  (
 DROP TABLE IF EXISTS `order_info`;
 CREATE TABLE `order_info`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
-  `consignee` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收货人',
-  `consignee_tel` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收件人电话',
+  `consignee` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '收货人',
+  `consignee_tel` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '收件人电话',
   `total_amount` decimal(10, 2) NULL DEFAULT NULL COMMENT '总金额',
-  `order_status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '订单状态',
+  `order_status` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '订单状态',
   `user_id` bigint NULL DEFAULT NULL COMMENT '用户id',
-  `payment_way` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '付款方式',
-  `delivery_address` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '送货地址',
-  `order_comment` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '订单备注',
-  `out_trade_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '订单交易编号（第三方支付用)',
-  `trade_body` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '订单描述(第三方支付用)',
+  `payment_way` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '付款方式',
+  `delivery_address` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '送货地址',
+  `order_comment` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '订单备注',
+  `out_trade_no` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '订单交易编号（第三方支付用)',
+  `trade_body` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '订单描述(第三方支付用)',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '操作时间',
   `expire_time` datetime NULL DEFAULT NULL COMMENT '失效时间',
-  `process_status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '进度状态',
-  `tracking_no` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '物流单编号',
+  `process_status` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '进度状态',
+  `tracking_no` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '物流单编号',
   `parent_order_id` bigint NULL DEFAULT NULL COMMENT '父订单编号',
-  `img_url` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '图片链接',
+  `img_url` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '图片链接',
   `province_id` int NULL DEFAULT NULL COMMENT '省份id',
   `activity_reduce_amount` decimal(16, 2) NULL DEFAULT NULL COMMENT '活动减免金额',
   `coupon_reduce_amount` decimal(16, 2) NULL DEFAULT NULL COMMENT '优惠券减免金额',
@@ -2092,7 +2092,7 @@ CREATE TABLE `order_info`  (
   `refundable_time` datetime NULL DEFAULT NULL COMMENT '可退款时间（签收后30天）',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_uid_status`(`order_status` ASC, `user_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '订单表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of order_info
@@ -2107,16 +2107,16 @@ CREATE TABLE `order_refund_info`  (
   `user_id` bigint NULL DEFAULT NULL COMMENT '用户id',
   `order_id` bigint NULL DEFAULT NULL COMMENT '订单id',
   `sku_id` bigint NULL DEFAULT NULL COMMENT 'skuid',
-  `refund_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '退款类型',
+  `refund_type` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '退款类型',
   `refund_num` bigint NULL DEFAULT NULL COMMENT '退货件数',
   `refund_amount` decimal(16, 2) NULL DEFAULT NULL COMMENT '退款金额',
-  `refund_reason_type` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '原因类型',
-  `refund_reason_txt` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '原因内容',
-  `refund_status` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '退款状态（0：待审批 1：已退款）',
+  `refund_reason_type` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '原因类型',
+  `refund_reason_txt` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '原因内容',
+  `refund_status` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '退款状态（0：待审批 1：已退款）',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '退单表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '退单表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of order_refund_info
@@ -2129,11 +2129,11 @@ DROP TABLE IF EXISTS `order_status_log`;
 CREATE TABLE `order_status_log`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
   `order_id` bigint NULL DEFAULT NULL COMMENT '订单id',
-  `order_status` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '订单状态',
+  `order_status` varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '订单状态',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '订单状态流水表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单状态流水表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of order_status_log
@@ -2145,20 +2145,20 @@ CREATE TABLE `order_status_log`  (
 DROP TABLE IF EXISTS `payment_info`;
 CREATE TABLE `payment_info`  (
   `id` int NOT NULL AUTO_INCREMENT COMMENT '编号',
-  `out_trade_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '对外业务编号',
+  `out_trade_no` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '对外业务编号',
   `order_id` bigint NULL DEFAULT NULL COMMENT '订单id',
   `user_id` bigint NULL DEFAULT NULL COMMENT '用户id',
-  `payment_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '支付类型（微信 支付宝）',
-  `trade_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '交易编号',
+  `payment_type` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '支付类型（微信 支付宝）',
+  `trade_no` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '交易编号',
   `total_amount` decimal(10, 2) NULL DEFAULT NULL COMMENT '支付金额',
-  `subject` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '交易内容',
-  `payment_status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '支付状态',
+  `subject` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '交易内容',
+  `payment_status` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '支付状态',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `callback_time` datetime NULL DEFAULT NULL COMMENT '回调时间',
-  `callback_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '回调信息',
+  `callback_content` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '回调信息',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '支付信息表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '支付信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of payment_info
@@ -2170,13 +2170,13 @@ CREATE TABLE `payment_info`  (
 DROP TABLE IF EXISTS `promotion_pos`;
 CREATE TABLE `promotion_pos`  (
   `id` bigint NOT NULL COMMENT '营销坑位id',
-  `pos_location` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '营销坑位位置',
-  `pos_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '营销坑位类型：banner,宫格,列表, 瀑布',
-  `promotion_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '营销类型：算法、固定、搜索',
+  `pos_location` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '营销坑位位置',
+  `pos_type` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '营销坑位类型：banner,宫格,列表, 瀑布',
+  `promotion_type` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '营销类型：算法、固定、搜索',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '营销坑位表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '营销坑位表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of promotion_pos
@@ -2198,11 +2198,11 @@ INSERT INTO `promotion_pos` VALUES (10, '商品搜索结果列表瀑布', '4204'
 DROP TABLE IF EXISTS `promotion_refer`;
 CREATE TABLE `promotion_refer`  (
   `id` bigint NOT NULL COMMENT '外部营销渠道id',
-  `refer_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '外部营销渠道名称',
+  `refer_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '外部营销渠道名称',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '营销渠道表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '营销渠道表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of promotion_refer
@@ -2219,22 +2219,22 @@ INSERT INTO `promotion_refer` VALUES (5, '微博推广', '2021-12-14 00:00:00', 
 DROP TABLE IF EXISTS `refund_payment`;
 CREATE TABLE `refund_payment`  (
   `id` int NOT NULL AUTO_INCREMENT COMMENT '编号',
-  `out_trade_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '对外业务编号',
+  `out_trade_no` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '对外业务编号',
   `order_id` bigint NULL DEFAULT NULL COMMENT '订单id',
   `sku_id` bigint NULL DEFAULT NULL COMMENT 'skuid',
-  `payment_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '支付类型（微信 支付宝）',
-  `trade_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '交易编号',
+  `payment_type` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '支付类型（微信 支付宝）',
+  `trade_no` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '交易编号',
   `total_amount` decimal(10, 2) NULL DEFAULT NULL COMMENT '退款金额',
-  `subject` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '交易内容',
-  `refund_status` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '退款状态',
+  `subject` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '交易内容',
+  `refund_status` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '退款状态',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `callback_time` datetime NULL DEFAULT NULL COMMENT '回调时间',
-  `callback_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '回调信息',
+  `callback_content` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '回调信息',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_out_trade_no`(`out_trade_no` ASC) USING BTREE,
   INDEX `idx_order_id`(`order_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '退款支付表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '退款支付表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of refund_payment
@@ -2248,20 +2248,20 @@ CREATE TABLE `seckill_goods`  (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `spu_id` bigint NULL DEFAULT NULL COMMENT 'spu_id',
   `sku_id` bigint NULL DEFAULT NULL COMMENT 'sku_id',
-  `sku_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '标题',
-  `sku_default_img` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '商品图片',
+  `sku_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '标题',
+  `sku_default_img` varchar(150) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商品图片',
   `price` decimal(10, 2) NULL DEFAULT NULL COMMENT '原价格',
   `cost_price` decimal(10, 2) NULL DEFAULT NULL COMMENT '秒杀价格',
   `create_time` datetime NULL DEFAULT NULL COMMENT '添加日期',
   `check_time` datetime NULL DEFAULT NULL COMMENT '审核日期',
-  `status` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '审核状态',
+  `status` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '审核状态',
   `start_time` datetime NULL DEFAULT NULL COMMENT '开始时间',
   `end_time` datetime NULL DEFAULT NULL COMMENT '结束时间',
   `num` int NULL DEFAULT NULL COMMENT '秒杀商品数',
   `stock_count` int NULL DEFAULT NULL COMMENT '剩余库存数',
-  `sku_desc` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '描述',
+  `sku_desc` varchar(2000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '描述',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of seckill_goods
@@ -2276,12 +2276,12 @@ CREATE TABLE `sku_attr_value`  (
   `attr_id` bigint NULL DEFAULT NULL COMMENT '平台属性id（冗余)',
   `value_id` bigint NULL DEFAULT NULL COMMENT '平台属性值id',
   `sku_id` bigint NULL DEFAULT NULL COMMENT 'skuid',
-  `attr_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '平台属性名称',
-  `value_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '平台属性值名称',
+  `attr_name` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '平台属性名称',
+  `value_name` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '平台属性值名称',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'sku平台属性值关联表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'sku平台属性值关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sku_attr_value
@@ -2423,14 +2423,14 @@ DROP TABLE IF EXISTS `sku_image`;
 CREATE TABLE `sku_image`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
   `sku_id` bigint NULL DEFAULT NULL COMMENT 'skuid',
-  `img_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '图片名称（冗余）',
-  `img_url` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '图片路径(冗余)',
+  `img_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '图片名称（冗余）',
+  `img_url` varchar(300) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '图片路径(冗余)',
   `spu_img_id` bigint NULL DEFAULT NULL COMMENT 'spu图片id',
-  `is_default` varchar(4000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '是否默认',
+  `is_default` varchar(4000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '是否默认',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '库存单元图片表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '库存单元图片表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sku_image
@@ -2640,17 +2640,17 @@ CREATE TABLE `sku_info`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'skuid',
   `spu_id` bigint NULL DEFAULT NULL COMMENT 'spuid',
   `price` decimal(10, 0) NULL DEFAULT NULL COMMENT '价格',
-  `sku_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'sku名称',
-  `sku_desc` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '商品规格描述',
+  `sku_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'sku名称',
+  `sku_desc` varchar(2000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商品规格描述',
   `weight` decimal(10, 2) NULL DEFAULT NULL COMMENT '重量',
   `tm_id` bigint NULL DEFAULT NULL COMMENT '品牌id(冗余)',
   `category3_id` bigint NULL DEFAULT NULL COMMENT '三级品类id（冗余)',
-  `sku_default_img` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '默认显示图片地址(冗余)',
+  `sku_default_img` varchar(300) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '默认显示图片地址(冗余)',
   `is_sale` tinyint NOT NULL DEFAULT 0 COMMENT '是否在售（1：是 0：否）',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'sku表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'sku表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sku_info
@@ -2701,12 +2701,12 @@ CREATE TABLE `sku_sale_attr_value`  (
   `spu_id` int NULL DEFAULT NULL COMMENT 'spu_id(冗余)',
   `sale_attr_value_id` bigint NULL DEFAULT NULL COMMENT '销售属性值id',
   `sale_attr_id` bigint NULL DEFAULT NULL COMMENT '销售属性id',
-  `sale_attr_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '销售属性名称',
-  `sale_attr_value_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '销售属性值名称',
+  `sale_attr_name` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '销售属性名称',
+  `sale_attr_value_name` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '销售属性值名称',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'sku销售属性值表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'sku销售属性值表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sku_sale_attr_value
@@ -2766,12 +2766,12 @@ DROP TABLE IF EXISTS `spu_image`;
 CREATE TABLE `spu_image`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
   `spu_id` bigint NULL DEFAULT NULL COMMENT '商品id',
-  `img_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '图片名称',
-  `img_url` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '图片路径',
+  `img_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '图片名称',
+  `img_url` varchar(300) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '图片路径',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'spu图片表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'spu图片表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of spu_image
@@ -2879,14 +2879,14 @@ INSERT INTO `spu_image` VALUES (96, 12, 'b526433a4d9e51ca.jpg', 'http://47.93.14
 DROP TABLE IF EXISTS `spu_info`;
 CREATE TABLE `spu_info`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'spu_id',
-  `spu_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'spu名称',
-  `description` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '描述信息',
+  `spu_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'spu名称',
+  `description` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '描述信息',
   `category3_id` bigint NULL DEFAULT NULL COMMENT '三级品类id',
   `tm_id` bigint NULL DEFAULT NULL COMMENT '品牌id',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'spu表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'spu表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of spu_info
@@ -2911,13 +2911,13 @@ DROP TABLE IF EXISTS `spu_poster`;
 CREATE TABLE `spu_poster`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
   `spu_id` bigint NULL DEFAULT NULL COMMENT '商品id',
-  `img_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文件名称',
-  `img_url` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文件路径',
+  `img_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件名称',
+  `img_url` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件路径',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `operate_time` datetime NOT NULL COMMENT '更新时间',
   `is_deleted` tinyint NOT NULL DEFAULT 0 COMMENT '逻辑删除 1（true）已删除， 0（false）未删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '商品海报表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '商品海报表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of spu_poster
@@ -2931,11 +2931,11 @@ CREATE TABLE `spu_sale_attr`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号(业务中无关联)',
   `spu_id` bigint NULL DEFAULT NULL COMMENT '商品id',
   `base_sale_attr_id` bigint NULL DEFAULT NULL COMMENT '销售属性id',
-  `sale_attr_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '销售属性名称(冗余)',
+  `sale_attr_name` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '销售属性名称(冗余)',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'spu销售属性表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'spu销售属性表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of spu_sale_attr
@@ -2964,12 +2964,12 @@ CREATE TABLE `spu_sale_attr_value`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '销售属性值编号',
   `spu_id` bigint NULL DEFAULT NULL COMMENT 'spuid',
   `base_sale_attr_id` bigint NULL DEFAULT NULL COMMENT '销售属性id',
-  `sale_attr_value_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '销售属性值名称',
-  `sale_attr_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '销售属性名称(冗余)',
+  `sale_attr_value_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '销售属性值名称',
+  `sale_attr_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '销售属性名称(冗余)',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'spu销售属性值表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'spu销售属性值表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of spu_sale_attr_value
@@ -3020,14 +3020,14 @@ CREATE TABLE `user_address`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
   `user_id` bigint NULL DEFAULT NULL COMMENT '用户id',
   `province_id` bigint NULL DEFAULT NULL COMMENT '省份id',
-  `user_address` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户地址',
-  `consignee` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收件人',
-  `phone_num` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '联系方式',
-  `is_default` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '是否是默认',
+  `user_address` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户地址',
+  `consignee` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '收件人',
+  `phone_num` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '联系方式',
+  `is_default` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '是否是默认',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户地址表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户地址表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_address
@@ -3039,21 +3039,21 @@ CREATE TABLE `user_address`  (
 DROP TABLE IF EXISTS `user_info`;
 CREATE TABLE `user_info`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
-  `login_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户名称',
-  `nick_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户昵称',
-  `passwd` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户密码',
-  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户姓名',
-  `phone_num` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '手机号',
-  `email` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '邮箱',
-  `head_img` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '头像',
-  `user_level` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户级别',
+  `login_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户名称',
+  `nick_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户昵称',
+  `passwd` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户密码',
+  `name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户姓名',
+  `phone_num` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '手机号',
+  `email` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '邮箱',
+  `head_img` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '头像',
+  `user_level` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户级别',
   `birthday` date NULL DEFAULT NULL COMMENT '用户生日',
-  `gender` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '性别 M男,F女',
+  `gender` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '性别 M男,F女',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `operate_time` datetime NULL DEFAULT NULL COMMENT '修改时间',
-  `status` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '状态',
+  `status` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '状态',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_info
@@ -3115,11 +3115,11 @@ INSERT INTO `user_info` VALUES (50, 'ok3hqncd3wx', '晶妍', NULL, '方晶妍', 
 DROP TABLE IF EXISTS `ware_info`;
 CREATE TABLE `ware_info`  (
   `id` bigint NOT NULL,
-  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `address` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `areacode` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `address` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `areacode` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of ware_info
@@ -3132,19 +3132,19 @@ DROP TABLE IF EXISTS `ware_order_task`;
 CREATE TABLE `ware_order_task`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
   `order_id` bigint NULL DEFAULT NULL COMMENT '订单编号',
-  `consignee` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收货人',
-  `consignee_tel` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收货人电话',
-  `delivery_address` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '送货地址',
-  `order_comment` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '订单备注',
-  `payment_way` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '付款方式 1:在线付款 2:货到付款',
-  `task_status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '工作单状态',
-  `order_body` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '订单描述',
-  `tracking_no` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '物流单号',
+  `consignee` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '收货人',
+  `consignee_tel` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '收货人电话',
+  `delivery_address` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '送货地址',
+  `order_comment` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '订单备注',
+  `payment_way` varchar(2) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '付款方式 1:在线付款 2:货到付款',
+  `task_status` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '工作单状态',
+  `order_body` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '订单描述',
+  `tracking_no` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '物流单号',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `ware_id` bigint NULL DEFAULT NULL COMMENT '仓库编号',
-  `task_comment` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '工作单备注',
+  `task_comment` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '工作单备注',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '库存工作单表 库存工作单表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '库存工作单表 库存工作单表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of ware_order_task
@@ -3157,12 +3157,12 @@ DROP TABLE IF EXISTS `ware_order_task_detail`;
 CREATE TABLE `ware_order_task_detail`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
   `sku_id` bigint NULL DEFAULT NULL COMMENT 'sku_id',
-  `sku_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'sku名称',
+  `sku_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'sku名称',
   `sku_num` int NULL DEFAULT NULL COMMENT '购买个数',
   `task_id` bigint NULL DEFAULT NULL COMMENT '工作单编号',
-  `refund_status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `refund_status` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '库存工作单明细表 库存工作单明细表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '库存工作单明细表 库存工作单明细表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of ware_order_task_detail
@@ -3177,10 +3177,10 @@ CREATE TABLE `ware_sku`  (
   `sku_id` bigint NULL DEFAULT NULL COMMENT 'skuid',
   `warehouse_id` bigint NULL DEFAULT NULL COMMENT '仓库id',
   `stock` int NULL DEFAULT NULL COMMENT '库存数',
-  `stock_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '存货名称',
+  `stock_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '存货名称',
   `stock_locked` int NULL DEFAULT NULL COMMENT '锁定库存数',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'sku与仓库关联表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'sku与仓库关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of ware_sku
@@ -3192,9 +3192,9 @@ CREATE TABLE `ware_sku`  (
 DROP TABLE IF EXISTS `z_log`;
 CREATE TABLE `z_log`  (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `log` varchar(4000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `log` varchar(4000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of z_log
