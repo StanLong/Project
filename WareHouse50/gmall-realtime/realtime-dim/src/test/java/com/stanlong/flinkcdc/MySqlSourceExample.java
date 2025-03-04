@@ -39,8 +39,6 @@ public class MySqlSourceExample {
                 .deserializer(new JsonDebeziumDeserializationSchema()) // converts SourceRecord to JSON String
                 .build();
 
-
-
         // enable checkpoint
         env.enableCheckpointing(3000);
 
