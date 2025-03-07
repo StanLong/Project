@@ -12,18 +12,25 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.flink.api.common.state.BroadcastState;
+import org.apache.flink.api.common.state.MapStateDescriptor;
+import org.apache.flink.api.common.state.ReadOnlyBroadcastState;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.runtime.state.hashmap.HashMapStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.streaming.api.datastream.BroadcastConnectedStream;
+import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
+import org.apache.flink.streaming.api.functions.co.BroadcastProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.hadoop.hbase.client.Connection;
 
@@ -51,7 +58,7 @@ public class DimApp {
 
         // 状态后端，负责状态的检查、存储及维护
         env.setStateBackend(new HashMapStateBackend()); // 哈希表状态后端，也是系统默认的一种状态后端
-        env.getCheckpointConfig().setCheckpointStorage("hdfs://node01:9000/checkpoint");  // 指定检查点保存路径
+        env.getCheckpointConfig().setCheckpointStorage("hdfs://node02:9000/checkpoint");  // 指定检查点保存路径
 
         // 设置操作hadoop的用户
         System.setProperty("HADOOP_USER_NAME", "root");
@@ -198,7 +205,62 @@ public class DimApp {
           }
         ).setParallelism(1);
 
-        tableProcessDS.print();
+	    // tableProcessDS.print();
+
+        // 把配置流广播出去
+        MapStateDescriptor<String, TableProcessDim> mapStateDescriptor = new MapStateDescriptor<>("mapStateDescriptor", String.class, TableProcessDim.class);
+        BroadcastStream<TableProcessDim> broadcast = tableProcessDS.broadcast(mapStateDescriptor);
+
+        // 主流和配置流进行连接
+        BroadcastConnectedStream<JSONObject, TableProcessDim> connectDS = jsonObjectDS.connect(broadcast);
+
+        SingleOutputStreamOperator<Tuple2<JSONObject, TableProcessDim>> dimDS = connectDS.process(
+          new BroadcastProcessFunction<JSONObject, TableProcessDim, Tuple2<JSONObject, TableProcessDim> >() {
+
+              @Override
+              public void processElement(JSONObject jsonObject,
+                                         BroadcastProcessFunction<JSONObject, TableProcessDim, Tuple2<JSONObject, TableProcessDim>>.ReadOnlyContext readOnlyContext,
+                                         Collector<Tuple2<JSONObject, TableProcessDim>> collector) throws Exception {
+                  // 获取处理数据的表名
+                  String table = jsonObject.getString("table");
+                  // 获取广播状态
+                  ReadOnlyBroadcastState<String, TableProcessDim> broadcastState = readOnlyContext.getBroadcastState(mapStateDescriptor);
+                  // 根据表名到广播状态中获取对应的配置信息
+                  TableProcessDim tableProcessDim = broadcastState.get(table);
+                  if(tableProcessDim  != null){
+                      // 如果根据表名获取到了对应的配置信息，说明当前处理的是维度数据，将维度数据继续向下游传递
+                      JSONObject dataJSONObject = jsonObject.getJSONObject("data");
+                      // 在向下游传递数据前，补充对维度数据的操作类型
+                      String type = jsonObject.getString("type");
+                      dataJSONObject.put("type", type);
+                      collector.collect(Tuple2.of(dataJSONObject, tableProcessDim));
+                  }
+
+              }
+
+              // 处理广播流配置信息，将配置数据放到广播状态或者从广播状态中删除对应的配置
+              @Override
+              public void processBroadcastElement(TableProcessDim tableProcessDim,
+                                                  BroadcastProcessFunction<JSONObject, TableProcessDim, Tuple2<JSONObject, TableProcessDim>>.Context context,
+                                                  Collector<Tuple2<JSONObject, TableProcessDim>> collector) throws Exception {
+                  // 获取对配置表的操作类型
+                  String op = tableProcessDim.getOp();
+                  BroadcastState<String, TableProcessDim> broadcastState = context.getBroadcastState(mapStateDescriptor);
+                  String sourceTable = tableProcessDim.getSourceTable();
+                  if("d".equals(op)){
+                      // 从配置表中删除一条信息，则从广播状态中也删除一条信息
+                      broadcastState.remove(sourceTable);
+                  }else {
+                      // 对配置表进行了读取，添加或者更新，将最新的配置信息放到广播状态中
+                      broadcastState.put(sourceTable, tableProcessDim);
+                  }
+
+              }
+          }
+        );
+
+        dimDS.print();
+
 
         env.execute();
     }
