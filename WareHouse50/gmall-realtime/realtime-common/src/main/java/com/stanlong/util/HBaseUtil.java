@@ -7,7 +7,6 @@ import org.apache.hadoop.hbase.client.*;
 
 import java.io.IOException;
 
-@Slf4j
 public class HBaseUtil {
 
 	public static Connection getHBaseConnection() throws IOException {
@@ -29,11 +28,11 @@ public class HBaseUtil {
 		TableName tableName = TableName.valueOf(nameSpace, table);
 		// 判断要建的表是否存在
 		if (admin.tableExists(tableName)) {
-			log.info("{} 下 {} 表已存在", nameSpace, tableName);
+			System.out.println(nameSpace + " 下的 " + tableName + "表已存在");
 			return;
 		}
 		if(families.length < 1){
-			log.info("至少需要一个列族");
+			System.out.println("至少需要一个列簇");
 			return;
 		}
 
@@ -47,7 +46,7 @@ public class HBaseUtil {
 		}
 		admin.createTable(tableDescriptorBuilder.build());
 		admin.close();
-		log.info("{} {} 建表成功", nameSpace, table);
+		System.out.println(nameSpace + "." + tableName + "建议成功");
 	}
 
 	public static void dropHBaseTable(Connection hbaseConn, String nameSpace, String table)
@@ -59,6 +58,6 @@ public class HBaseUtil {
 			admin.deleteTable(tableName);
 		}
 		admin.close();
-		log.info("{} {} 删除成功", nameSpace, table);
+		System.out.println(nameSpace + "." + tableName + "删除成功！");
 	}
 }

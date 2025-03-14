@@ -35,38 +35,44 @@ import org.apache.flink.util.Collector;
 import org.apache.hadoop.hbase.client.Connection;
 
 import java.io.IOException;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * 维度数据处理
+ * 数据处理流程
+ *
+ * 运行模拟生成数据的Jar包 ----》业务数据库 mysql/binlog --maxwell--> topic_db ----> Flink-DimAPP(从topic_db中读取业务数据，使用FlinkCDC读取配置文件信息，将配置信息封装为实体类对象。根据配置到hbase中建/删表，将配置信息进行广播，判断是否是维度，将维度数据同步到hbase表) ----》 维度数据 hbase
+ *                                                                                   ↑ FlinkCDC
+ *                                                                                mysql配置表
  */
 public class DimApp {
     public static void main(String[] args) throws Exception {
-        // 准备环境
+        // 1、准备环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(4); // kafka topic 中有四个分区，对应设置4个并行度来消费数据
 
-        // 检查点配置， 对状态进行持久化
+        // 1.1 检查点配置， 对状态进行持久化
         env.enableCheckpointing(5000L, CheckpointingMode.EXACTLY_ONCE); // 每隔5秒新建一个检查点，采用“精确一次”的一致性保证
         env.getCheckpointConfig().setCheckpointTimeout(10 * 6000L); // 检查点保存的超时时间，超时后没有完成保存就会被丢弃掉
         env.getCheckpointConfig().setExternalizedCheckpointCleanup(
           CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION); // 作业取消也会保存外部检查点
         env.getCheckpointConfig().setMinPauseBetweenCheckpoints(2000L); // 上一个检查点完成之后，检查点协调器最快也要等2s才可以向下一个检查点发出保存指令, 这就意味着即使已经达到了周期触发的时间点，只要距离上一个检查点完成的间隔不够，就依然不能开启下一次检查点的保存
 
-        // 重启策略
+        // 1.2 重启策略
         env.setRestartStrategy(RestartStrategies.failureRateRestart(3, Time.days(30), Time.seconds(3)));
 
-        // 状态后端，负责状态的检查、存储及维护
+        // 1.3 状态后端，负责状态的检查、存储及维护
         env.setStateBackend(new HashMapStateBackend()); // 哈希表状态后端，也是系统默认的一种状态后端
-        env.getCheckpointConfig().setCheckpointStorage("hdfs://node01:9000/checkpoint");  // 指定检查点保存路径
+        env.getCheckpointConfig().setCheckpointStorage("hdfs://node02:9000/checkpoint");  // 指定检查点保存路径
 
-        // 设置操作hadoop的用户
+        // 1.4 设置操作hadoop的用户
         System.setProperty("HADOOP_USER_NAME", "root");
 
-        // 消费者组
+        // 2、通过maxwell向kafka发送mysql配置表中的数据
+        // 2.1 消费者组
         String groupId = "dim_app_group";
 
-        // 配置Kafka连接器
+        // 2.2 配置Kafka连接器
         KafkaSource<String> kafkaSource = KafkaSource.<String>builder()
                 .setBootstrapServers(Constant.KAFKA_BROKERS)
                 .setTopics(Constant.TOPIC_DB)
@@ -97,15 +103,16 @@ public class DimApp {
                         }
                 ).build();
 
-        // 从 kafka里读取数据封装为流
+        // 2.3 从 kafka里读取数据封装为流
         DataStreamSource<String> kafkaSourceDS = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka_Source");
 
-        SingleOutputStreamOperator<JSONObject> jsonObjectDS = kafkaSourceDS.process(
+        // 2.4 对业务流中的数据类型进行ETL转换并进行简单的ETL  jsonStr -> jsonObj
+        SingleOutputStreamOperator<JSONObject> gmallJsonObjectDS = kafkaSourceDS.process(
                 new ProcessFunction<String, JSONObject>() {
                     @Override
                     public void processElement(String s, ProcessFunction<String, JSONObject>.Context context, Collector<JSONObject> collector) throws Exception {
                         JSONObject jsonObject = JSONObject.parseObject(s);
-                        String db = jsonObject.getString("database");
+                        String db = jsonObject.getString("database");  // 启动maxwell, 通过maxwell全量读取mysql配置表的信息发送到 topic_bd
                         String type = jsonObject.getString("type");
                         String data = jsonObject.getString("data");
                         if ("gmall".equals(db)
@@ -122,9 +129,9 @@ public class DimApp {
                     }
                 }
         );
-        jsonObjectDS.print();
+        // gmallJsonObjectDS.print();
 
-        // FlinkCDC 实时监控mysql数据源的变化
+        // 3 FlinkCDC 实时监控 mysql 配置表的变化
         Properties props = new Properties();
         props.setProperty("useSSL", "false");
         props.setProperty("allowPublicKeyRetrieval", "true");
@@ -141,12 +148,12 @@ public class DimApp {
           .jdbcProperties(props)
           .build();
 
-        // 配置流的并行度要设置为1，避免读取配置出错
+        // 3.1 配置流的并行度要设置为1，避免读取配置出错
         DataStreamSource<String> mysqlSourceDS = env.fromSource(mysqlSource, WatermarkStrategy.noWatermarks(), "mysql_source")
           .setParallelism(1);
         // mysqlSourceDS.print();
 
-        // 对配置流中的数据进行转换，转换成实体类对象
+        // 3.2 对配置流中的数据进行转换，转换成 TableProcessDim 实体类对象
         SingleOutputStreamOperator<TableProcessDim> tableProcessDS = mysqlSourceDS.map(
           new MapFunction<String, TableProcessDim>() {
               @Override
@@ -167,6 +174,7 @@ public class DimApp {
 
         // tableProcessDS.print();
 
+        // 4 封装的实体类对象 TableProcessDim 保存到 Hbase
 	    tableProcessDS = tableProcessDS.map(
 
           new RichMapFunction<TableProcessDim, TableProcessDim>() {
@@ -207,15 +215,22 @@ public class DimApp {
 
 	    // tableProcessDS.print();
 
-        // 把配置流广播出去
+        // 5 把配置流广播出去
         MapStateDescriptor<String, TableProcessDim> mapStateDescriptor = new MapStateDescriptor<>("mapStateDescriptor", String.class, TableProcessDim.class);
-        BroadcastStream<TableProcessDim> broadcast = tableProcessDS.broadcast(mapStateDescriptor);
+        BroadcastStream<TableProcessDim> gmallConfigBroadcast = tableProcessDS.broadcast(mapStateDescriptor);
 
-        // 主流和配置流进行连接
-        BroadcastConnectedStream<JSONObject, TableProcessDim> connectDS = jsonObjectDS.connect(broadcast);
+        // 6 主流和配置流进行连接
+        BroadcastConnectedStream<JSONObject, TableProcessDim> connectDS = gmallJsonObjectDS.connect(gmallConfigBroadcast);
 
         SingleOutputStreamOperator<Tuple2<JSONObject, TableProcessDim>> dimDS = connectDS.process(
           new BroadcastProcessFunction<JSONObject, TableProcessDim, Tuple2<JSONObject, TableProcessDim> >() {
+
+              private Map<String, TableProcessDim> configMap = new HashMap<>();
+              @Override
+              public void open(Configuration parameters) throws Exception {
+                  // 将配置表中的配置信息预加载到 configMap 中
+
+              }
 
               @Override
               public void processElement(JSONObject jsonObject,
@@ -230,6 +245,11 @@ public class DimApp {
                   if(tableProcessDim  != null){
                       // 如果根据表名获取到了对应的配置信息，说明当前处理的是维度数据，将维度数据继续向下游传递
                       JSONObject dataJSONObject = jsonObject.getJSONObject("data");
+
+                      // 在向下游传递数据前，过滤掉不需要的数据
+                      String sinkColumns = tableProcessDim.getSinkColumns();
+                      deleteNotNeedColumns(dataJSONObject, sinkColumns);
+
                       // 在向下游传递数据前，补充对维度数据的操作类型
                       String type = jsonObject.getString("type");
                       dataJSONObject.put("type", type);
@@ -243,6 +263,10 @@ public class DimApp {
               public void processBroadcastElement(TableProcessDim tableProcessDim,
                                                   BroadcastProcessFunction<JSONObject, TableProcessDim, Tuple2<JSONObject, TableProcessDim>>.Context context,
                                                   Collector<Tuple2<JSONObject, TableProcessDim>> collector) throws Exception {
+
+
+
+
                   // 获取对配置表的操作类型
                   String op = tableProcessDim.getOp();
                   BroadcastState<String, TableProcessDim> broadcastState = context.getBroadcastState(mapStateDescriptor);
@@ -259,9 +283,15 @@ public class DimApp {
           }
         );
 
-        // dimDS.print();
-
+        dimDS.print();
 
         env.execute();
+    }
+
+    // 过滤掉不需要传递的字段
+    private static void deleteNotNeedColumns(JSONObject dataJsonObj, String sinkColumns){
+        List<String> columnList = Arrays.asList(sinkColumns.split(","));
+        Set<Map.Entry<String, Object>> entrySet = dataJsonObj.entrySet();
+	    entrySet.removeIf(entry -> !columnList.contains(entry.getKey()));
     }
 }
