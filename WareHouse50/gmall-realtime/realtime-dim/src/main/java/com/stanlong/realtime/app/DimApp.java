@@ -3,6 +3,9 @@ package com.stanlong.realtime.app;
 import com.alibaba.fastjson.JSONObject;
 import com.stanlong.bean.TableProcessDim;
 import com.stanlong.constant.Constant;
+import com.stanlong.realtime.function.HbaseSinkFunction;
+import com.stanlong.realtime.function.TableProcessFunction;
+import com.stanlong.util.FlinkSourceUtil;
 import com.stanlong.util.HBaseUtil;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
@@ -31,10 +34,16 @@ import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.co.BroadcastProcessFunction;
+import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.util.Collector;
 import org.apache.hadoop.hbase.client.Connection;
 
 import java.io.IOException;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.*;
 
 /**
@@ -65,6 +74,10 @@ public class DimApp {
         env.setStateBackend(new HashMapStateBackend()); // 哈希表状态后端，也是系统默认的一种状态后端
         env.getCheckpointConfig().setCheckpointStorage("hdfs://node02:9000/checkpoint");  // 指定检查点保存路径
 
+
+
+
+
         // 1.4 设置操作hadoop的用户
         System.setProperty("HADOOP_USER_NAME", "root");
 
@@ -73,35 +86,7 @@ public class DimApp {
         String groupId = "dim_app_group";
 
         // 2.2 配置Kafka连接器
-        KafkaSource<String> kafkaSource = KafkaSource.<String>builder()
-                .setBootstrapServers(Constant.KAFKA_BROKERS)
-                .setTopics(Constant.TOPIC_DB)
-                .setGroupId(groupId)
-                .setStartingOffsets(OffsetsInitializer.latest())
-                // 使用 SimpleStringSchema 进行反序列化，如果消息为空，会报错。
-                // .setDeserializer(new SimpleStringSchema())
-                // 这里手动实现反序列化
-                .setValueOnlyDeserializer(
-                        new DeserializationSchema<String>() { // 这里手动实现反序列化
-                            @Override
-                            public String deserialize(byte[] bytes) throws IOException {
-                                if(bytes != null){
-                                    return new String(bytes);
-                                }
-                                return "";
-                            }
-
-                            @Override
-                            public boolean isEndOfStream(String s) {
-                                return false;
-                            }
-
-                            @Override
-                            public TypeInformation<String> getProducedType() {
-                                return TypeInformation.of(String.class);
-                            }
-                        }
-                ).build();
+        KafkaSource<String> kafkaSource = FlinkSourceUtil.getKafkaSource(groupId, Constant.TOPIC_DB);
 
         // 2.3 从 kafka里读取数据封装为流
         DataStreamSource<String> kafkaSourceDS = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka_Source");
@@ -132,21 +117,8 @@ public class DimApp {
         // gmallJsonObjectDS.print();
 
         // 3 FlinkCDC 实时监控 mysql 配置表的变化
-        Properties props = new Properties();
-        props.setProperty("useSSL", "false");
-        props.setProperty("allowPublicKeyRetrieval", "true");
+        MySqlSource<String> mysqlSource = FlinkSourceUtil.getMysqlSource("gmall_config", "table_process_dim");
 
-        MySqlSource<String> mysqlSource = MySqlSource.<String>builder()
-          .hostname(Constant.MYSQL_HOST)
-          .port(Constant.MYSQL_PORT)
-          .databaseList("gmall_config")
-          .tableList("gmall_config.table_process_dim")
-          .username(Constant.MYSQL_USER_NAME)
-          .password(Constant.MYSQL_PASSWORD)
-          .deserializer(new JsonDebeziumDeserializationSchema())
-          .startupOptions(StartupOptions.initial())
-          .jdbcProperties(props)
-          .build();
 
         // 3.1 配置流的并行度要设置为1，避免读取配置出错
         DataStreamSource<String> mysqlSourceDS = env.fromSource(mysqlSource, WatermarkStrategy.noWatermarks(), "mysql_source")
@@ -223,75 +195,13 @@ public class DimApp {
         BroadcastConnectedStream<JSONObject, TableProcessDim> connectDS = gmallJsonObjectDS.connect(gmallConfigBroadcast);
 
         SingleOutputStreamOperator<Tuple2<JSONObject, TableProcessDim>> dimDS = connectDS.process(
-          new BroadcastProcessFunction<JSONObject, TableProcessDim, Tuple2<JSONObject, TableProcessDim> >() {
-
-              private Map<String, TableProcessDim> configMap = new HashMap<>();
-              @Override
-              public void open(Configuration parameters) throws Exception {
-                  // 将配置表中的配置信息预加载到 configMap 中
-
-              }
-
-              @Override
-              public void processElement(JSONObject jsonObject,
-                                         BroadcastProcessFunction<JSONObject, TableProcessDim, Tuple2<JSONObject, TableProcessDim>>.ReadOnlyContext readOnlyContext,
-                                         Collector<Tuple2<JSONObject, TableProcessDim>> collector) throws Exception {
-                  // 获取处理数据的表名
-                  String table = jsonObject.getString("table");
-                  // 获取广播状态
-                  ReadOnlyBroadcastState<String, TableProcessDim> broadcastState = readOnlyContext.getBroadcastState(mapStateDescriptor);
-                  // 根据表名到广播状态中获取对应的配置信息
-                  TableProcessDim tableProcessDim = broadcastState.get(table);
-                  if(tableProcessDim  != null){
-                      // 如果根据表名获取到了对应的配置信息，说明当前处理的是维度数据，将维度数据继续向下游传递
-                      JSONObject dataJSONObject = jsonObject.getJSONObject("data");
-
-                      // 在向下游传递数据前，过滤掉不需要的数据
-                      String sinkColumns = tableProcessDim.getSinkColumns();
-                      deleteNotNeedColumns(dataJSONObject, sinkColumns);
-
-                      // 在向下游传递数据前，补充对维度数据的操作类型
-                      String type = jsonObject.getString("type");
-                      dataJSONObject.put("type", type);
-                      collector.collect(Tuple2.of(dataJSONObject, tableProcessDim));
-                  }
-
-              }
-
-              // 处理广播流配置信息，将配置数据放到广播状态或者从广播状态中删除对应的配置
-              @Override
-              public void processBroadcastElement(TableProcessDim tableProcessDim,
-                                                  BroadcastProcessFunction<JSONObject, TableProcessDim, Tuple2<JSONObject, TableProcessDim>>.Context context,
-                                                  Collector<Tuple2<JSONObject, TableProcessDim>> collector) throws Exception {
-
-
-
-
-                  // 获取对配置表的操作类型
-                  String op = tableProcessDim.getOp();
-                  BroadcastState<String, TableProcessDim> broadcastState = context.getBroadcastState(mapStateDescriptor);
-                  String sourceTable = tableProcessDim.getSourceTable();
-                  if("d".equals(op)){
-                      // 从配置表中删除一条信息，则从广播状态中也删除一条信息
-                      broadcastState.remove(sourceTable);
-                  }else {
-                      // 对配置表进行了读取，添加或者更新，将最新的配置信息放到广播状态中
-                      broadcastState.put(sourceTable, tableProcessDim);
-                  }
-
-              }
-          }
+          new TableProcessFunction(mapStateDescriptor)
         );
 
-        dimDS.print();
+        dimDS.addSink(new HbaseSinkFunction());
 
         env.execute();
     }
 
-    // 过滤掉不需要传递的字段
-    private static void deleteNotNeedColumns(JSONObject dataJsonObj, String sinkColumns){
-        List<String> columnList = Arrays.asList(sinkColumns.split(","));
-        Set<Map.Entry<String, Object>> entrySet = dataJsonObj.entrySet();
-	    entrySet.removeIf(entry -> !columnList.contains(entry.getKey()));
-    }
+
 }
