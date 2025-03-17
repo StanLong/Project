@@ -1,6 +1,7 @@
 package com.stanlong.realtime.app;
 
 import com.alibaba.fastjson.JSONObject;
+import com.stanlong.base.BaseApp;
 import com.stanlong.bean.TableProcessDim;
 import com.stanlong.constant.Constant;
 import com.stanlong.realtime.function.HbaseSinkFunction;
@@ -54,100 +55,47 @@ import java.util.*;
  *                                                                                   ↑ FlinkCDC
  *                                                                                mysql配置表
  */
-public class DimApp {
+public class DimApp extends BaseApp {
     public static void main(String[] args) throws Exception {
-        // 1、准备环境
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setParallelism(4); // kafka topic 中有四个分区，对应设置4个并行度来消费数据
+        new DimApp().start(10001, 4, "dim_app", Constant.TOPIC_DB);
+    }
 
-        // 1.1 检查点配置， 对状态进行持久化
-        env.enableCheckpointing(5000L, CheckpointingMode.EXACTLY_ONCE); // 每隔5秒新建一个检查点，采用“精确一次”的一致性保证
-        env.getCheckpointConfig().setCheckpointTimeout(10 * 6000L); // 检查点保存的超时时间，超时后没有完成保存就会被丢弃掉
-        env.getCheckpointConfig().setExternalizedCheckpointCleanup(
-          CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION); // 作业取消也会保存外部检查点
-        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(2000L); // 上一个检查点完成之后，检查点协调器最快也要等2s才可以向下一个检查点发出保存指令, 这就意味着即使已经达到了周期触发的时间点，只要距离上一个检查点完成的间隔不够，就依然不能开启下一次检查点的保存
-
-        // 1.2 重启策略
-        env.setRestartStrategy(RestartStrategies.failureRateRestart(3, Time.days(30), Time.seconds(3)));
-
-        // 1.3 状态后端，负责状态的检查、存储及维护
-        env.setStateBackend(new HashMapStateBackend()); // 哈希表状态后端，也是系统默认的一种状态后端
-        env.getCheckpointConfig().setCheckpointStorage("hdfs://node02:9000/checkpoint");  // 指定检查点保存路径
-
-
-
-
-
-        // 1.4 设置操作hadoop的用户
-        System.setProperty("HADOOP_USER_NAME", "root");
-
-        // 2、通过maxwell向kafka发送mysql配置表中的数据
-        // 2.1 消费者组
-        String groupId = "dim_app_group";
-
-        // 2.2 配置Kafka连接器
-        KafkaSource<String> kafkaSource = FlinkSourceUtil.getKafkaSource(groupId, Constant.TOPIC_DB);
-
-        // 2.3 从 kafka里读取数据封装为流
-        DataStreamSource<String> kafkaSourceDS = env.fromSource(kafkaSource, WatermarkStrategy.noWatermarks(), "Kafka_Source");
-
+    @Override
+    public void handle(StreamExecutionEnvironment env, DataStreamSource<String> kafkaSourceDS) {
         // 2.4 对业务流中的数据类型进行ETL转换并进行简单的ETL  jsonStr -> jsonObj
-        SingleOutputStreamOperator<JSONObject> gmallJsonObjectDS = kafkaSourceDS.process(
-                new ProcessFunction<String, JSONObject>() {
-                    @Override
-                    public void processElement(String s, ProcessFunction<String, JSONObject>.Context context, Collector<JSONObject> collector) throws Exception {
-                        JSONObject jsonObject = JSONObject.parseObject(s);
-                        String db = jsonObject.getString("database");  // 启动maxwell, 通过maxwell全量读取mysql配置表的信息发送到 topic_bd
-                        String type = jsonObject.getString("type");
-                        String data = jsonObject.getString("data");
-                        if ("gmall".equals(db)
-                                && ("insert".equals(type)
-                                || "update".equals(type)
-                                || "delete".equals(type)
-                                || "bootstrap-insert".equals(type))
-                                && data != null
-                                && data.length() > 2
-                        ) {
-                            collector.collect(jsonObject);
-                        }
-
-                    }
-                }
-        );
+        SingleOutputStreamOperator<JSONObject> gmallJsonObjectDS = etl(kafkaSourceDS);
         // gmallJsonObjectDS.print();
 
-        // 3 FlinkCDC 实时监控 mysql 配置表的变化
-        MySqlSource<String> mysqlSource = FlinkSourceUtil.getMysqlSource("gmall_config", "table_process_dim");
-
-
-        // 3.1 配置流的并行度要设置为1，避免读取配置出错
-        DataStreamSource<String> mysqlSourceDS = env.fromSource(mysqlSource, WatermarkStrategy.noWatermarks(), "mysql_source")
-          .setParallelism(1);
-        // mysqlSourceDS.print();
-
-        // 3.2 对配置流中的数据进行转换，转换成 TableProcessDim 实体类对象
-        SingleOutputStreamOperator<TableProcessDim> tableProcessDS = mysqlSourceDS.map(
-          new MapFunction<String, TableProcessDim>() {
-              @Override
-              public TableProcessDim map(String s) throws Exception {
-                  JSONObject jsonObject = JSONObject.parseObject(s);
-                  String op = jsonObject.getString("op");
-                  TableProcessDim tableProcessDim = null;
-                  if("d".equals(op)){ // 如果是删除操作，从before属性中获取删除前的最新操作
-                      tableProcessDim = jsonObject.getObject("before", TableProcessDim.class);
-                  }else { // 如果是其他操作，从after属性中获取最新配置信息
-                      tableProcessDim = jsonObject.getObject("after", TableProcessDim.class);
-                  }
-                  tableProcessDim.setOp(op);
-                  return tableProcessDim;
-              }
-          }
-        ).setParallelism(1);
+        SingleOutputStreamOperator<TableProcessDim> tableProcessDS = readTableProcess(env);
 
         // tableProcessDS.print();
 
         // 4 封装的实体类对象 TableProcessDim 保存到 Hbase
-	    tableProcessDS = tableProcessDS.map(
+        tableProcessDS = createHbaseTable(tableProcessDS);
+
+        // tableProcessDS.print();
+
+        // 5 把配置流广播出去
+        SingleOutputStreamOperator<Tuple2<JSONObject, TableProcessDim>> dimDS = connect(tableProcessDS, gmallJsonObjectDS);
+
+        dimDS.addSink(new HbaseSinkFunction());
+    }
+
+    private static SingleOutputStreamOperator<Tuple2<JSONObject, TableProcessDim>> connect(SingleOutputStreamOperator<TableProcessDim> tableProcessDS, SingleOutputStreamOperator<JSONObject> gmallJsonObjectDS) {
+        MapStateDescriptor<String, TableProcessDim> mapStateDescriptor = new MapStateDescriptor<>("mapStateDescriptor", String.class, TableProcessDim.class);
+        BroadcastStream<TableProcessDim> gmallConfigBroadcast = tableProcessDS.broadcast(mapStateDescriptor);
+
+        // 6 主流和配置流进行连接
+        BroadcastConnectedStream<JSONObject, TableProcessDim> connectDS = gmallJsonObjectDS.connect(gmallConfigBroadcast);
+
+        SingleOutputStreamOperator<Tuple2<JSONObject, TableProcessDim>> dimDS = connectDS.process(
+          new TableProcessFunction(mapStateDescriptor)
+        );
+        return dimDS;
+    }
+
+    private static SingleOutputStreamOperator<TableProcessDim> createHbaseTable(SingleOutputStreamOperator<TableProcessDim> tableProcessDS) {
+        tableProcessDS = tableProcessDS.map(
 
           new RichMapFunction<TableProcessDim, TableProcessDim>() {
 
@@ -184,24 +132,62 @@ public class DimApp {
               }
           }
         ).setParallelism(1);
-
-	    // tableProcessDS.print();
-
-        // 5 把配置流广播出去
-        MapStateDescriptor<String, TableProcessDim> mapStateDescriptor = new MapStateDescriptor<>("mapStateDescriptor", String.class, TableProcessDim.class);
-        BroadcastStream<TableProcessDim> gmallConfigBroadcast = tableProcessDS.broadcast(mapStateDescriptor);
-
-        // 6 主流和配置流进行连接
-        BroadcastConnectedStream<JSONObject, TableProcessDim> connectDS = gmallJsonObjectDS.connect(gmallConfigBroadcast);
-
-        SingleOutputStreamOperator<Tuple2<JSONObject, TableProcessDim>> dimDS = connectDS.process(
-          new TableProcessFunction(mapStateDescriptor)
-        );
-
-        dimDS.addSink(new HbaseSinkFunction());
-
-        env.execute();
+        return tableProcessDS;
     }
 
+    private static SingleOutputStreamOperator<TableProcessDim> readTableProcess(StreamExecutionEnvironment env) {
+        // 3 FlinkCDC 实时监控 mysql 配置表的变化
+        MySqlSource<String> mysqlSource = FlinkSourceUtil.getMysqlSource("gmall_config", "table_process_dim");
 
+        // 3.1 配置流的并行度要设置为1，避免读取配置出错
+        DataStreamSource<String> mysqlSourceDS = env.fromSource(mysqlSource, WatermarkStrategy.noWatermarks(), "mysql_source")
+          .setParallelism(1);
+        // mysqlSourceDS.print();
+
+        // 3.2 对配置流中的数据进行转换，转换成 TableProcessDim 实体类对象
+        SingleOutputStreamOperator<TableProcessDim> tableProcessDS = mysqlSourceDS.map(
+          new MapFunction<String, TableProcessDim>() {
+              @Override
+              public TableProcessDim map(String s) throws Exception {
+                  JSONObject jsonObject = JSONObject.parseObject(s);
+                  String op = jsonObject.getString("op");
+                  TableProcessDim tableProcessDim = null;
+                  if("d".equals(op)){ // 如果是删除操作，从before属性中获取删除前的最新操作
+                      tableProcessDim = jsonObject.getObject("before", TableProcessDim.class);
+                  }else { // 如果是其他操作，从after属性中获取最新配置信息
+                      tableProcessDim = jsonObject.getObject("after", TableProcessDim.class);
+                  }
+                  tableProcessDim.setOp(op);
+                  return tableProcessDim;
+              }
+          }
+        ).setParallelism(1);
+        return tableProcessDS;
+    }
+
+    private static SingleOutputStreamOperator<JSONObject> etl(DataStreamSource<String> kafkaSourceDS) {
+        SingleOutputStreamOperator<JSONObject> gmallJsonObjectDS = kafkaSourceDS.process(
+          new ProcessFunction<String, JSONObject>() {
+              @Override
+              public void processElement(String s, ProcessFunction<String, JSONObject>.Context context, Collector<JSONObject> collector) throws Exception {
+                  JSONObject jsonObject = JSONObject.parseObject(s);
+                  String db = jsonObject.getString("database");  // 启动maxwell, 通过maxwell全量读取mysql配置表的信息发送到 topic_bd
+                  String type = jsonObject.getString("type");
+                  String data = jsonObject.getString("data");
+                  if ("gmall".equals(db)
+                    && ("insert".equals(type)
+                    || "update".equals(type)
+                    || "delete".equals(type)
+                    || "bootstrap-insert".equals(type))
+                    && data != null
+                    && data.length() > 2
+                  ) {
+                      collector.collect(jsonObject);
+                  }
+
+              }
+          }
+        );
+        return gmallJsonObjectDS;
+    }
 }

@@ -3,6 +3,7 @@ package com.stanlong.realtime.function;
 import com.alibaba.fastjson.JSONObject;
 import com.stanlong.bean.TableProcessDim;
 import com.stanlong.constant.Constant;
+import com.stanlong.util.JdbcUtil;
 import org.apache.flink.api.common.state.BroadcastState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.state.ReadOnlyBroadcastState;
@@ -11,10 +12,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.co.BroadcastProcessFunction;
 import org.apache.flink.util.Collector;
 
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
+import java.sql.*;
 import java.util.*;
 
 /**
@@ -23,8 +21,6 @@ import java.util.*;
 public class TableProcessFunction extends BroadcastProcessFunction<JSONObject, TableProcessDim, Tuple2<JSONObject, TableProcessDim>> {
 
 	private MapStateDescriptor<String, TableProcessDim> mapStateDescriptor;
-
-
 
 	private Map<String, TableProcessDim> configMap = new HashMap<>();
 
@@ -35,31 +31,13 @@ public class TableProcessFunction extends BroadcastProcessFunction<JSONObject, T
 	@Override
 	public void open(Configuration parameters) throws Exception {
 		// 将配置表中的配置信息预加载到 configMap 中
-		Class.forName("com.mysql.cj.jdbc.Driver");
-		java.sql.Connection connection = DriverManager.getConnection(Constant.MYSQL_URL, Constant.MYSQL_USER_NAME, Constant.MYSQL_PASSWORD);
-		String sql = "select * from gmall_config.table_process.dim";
-		PreparedStatement preparedStatement = connection.prepareStatement(sql);
-		ResultSet resultSet = preparedStatement.executeQuery();
-		ResultSetMetaData metaData = resultSet.getMetaData();
-		while (resultSet.next()){
-			JSONObject jsonObject = new JSONObject();
-			for (int i = 1; i <= metaData.getColumnCount() ; i++) {
-				String columnName = metaData.getColumnName(i);
-				Object columnValue = resultSet.getObject(i);
-				jsonObject.put(columnName, columnValue);
-			}
-			TableProcessDim tableProcessDim = jsonObject.toJavaObject(TableProcessDim.class);
+		Connection mysqlConnection = JdbcUtil.getMysqlConnection();
+		List<TableProcessDim> tableProcessDimList = JdbcUtil.queryList(mysqlConnection, "select * from gmall_config.table_process_dim", TableProcessDim.class, true);
+		for(TableProcessDim tableProcessDim : tableProcessDimList){
 			configMap.put(tableProcessDim.getSourceTable(), tableProcessDim);
-
 		}
-
-		resultSet.close();
-		preparedStatement.close();
-		connection.close();
-
-
+		JdbcUtil.closeConnection(mysqlConnection);
 	}
-
 
 
 	// 过滤掉不需要传递的字段
