@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# 先加载环境变量，不然在定时任务中认不到hadoop环境
+source /root/.bashrc
 DATAX_HOME=/opt/datax
 
 # 如果传入日期则do_date等于传入的日期，否则等于前一天日期
