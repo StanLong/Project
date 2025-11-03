@@ -1,3 +1,7 @@
+CREATE DATABASE ods;
+USE ods;
+
+-- 用户日志表
 DROP TABLE IF EXISTS ods_log_inc;
 CREATE EXTERNAL TABLE ods_log_inc
 (
@@ -16,6 +20,9 @@ CREATE EXTERNAL TABLE ods_log_inc
     PARTITIONED BY (`dt` STRING)
     ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.JsonSerDe'
     LOCATION '/warehouse/gmall/ods/ods_log_inc/';
+    
+
+-- 业务日志表
 
 DROP TABLE IF EXISTS ods_activity_info_full;
 CREATE EXTERNAL TABLE ods_activity_info_full

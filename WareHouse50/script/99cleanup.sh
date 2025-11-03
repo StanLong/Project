@@ -15,6 +15,16 @@ hdfs dfs -rm -r -f /origin_data/gmall/log/topic_log/*
 docker exec -it mysql mysql -u root -proot -e "drop database gmall;"
 docker exec -it mysql mysql -u root -proot -e "create database gmall default charset utf8 COLLATE utf8_general_ci;"
 
+# maxwell 初始化
+docker exec -it mysql mysql -u root -proot -e "drop table maxwell.bootstrap;"
+docker exec -it mysql mysql -u root -proot -e "drop table maxwell.columns;"
+docker exec -it mysql mysql -u root -proot -e "drop table maxwell.databases;"
+docker exec -it mysql mysql -u root -proot -e "drop table maxwell.heartbeats;"
+docker exec -it mysql mysql -u root -proot -e "drop table maxwell.positions;"
+docker exec -it mysql mysql -u root -proot -e "drop table maxwell.schemas;"
+docker exec -it mysql mysql -u root -proot -e "drop table maxwell.tables;"
+
+
 # 加载宿主机的sql脚本到mysql容器
 docker exec -i mysql mysql -u root -proot gmall < /opt/sgg5/gmall.sql
 
